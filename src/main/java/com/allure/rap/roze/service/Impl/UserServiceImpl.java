@@ -4,10 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.allure.rap.roze.common.ErrorCode;
 import com.allure.rap.roze.exception.ThrowUtils;
-import com.allure.rap.roze.model.dto.user.PasswordUpdateRequest;
-import com.allure.rap.roze.model.dto.user.UserCreateRequest;
-import com.allure.rap.roze.model.dto.user.UserDeleteRequest;
-import com.allure.rap.roze.model.dto.user.UserUpdateRequest;
+import com.allure.rap.roze.model.dto.user.*;
 import com.allure.rap.roze.model.entity.User;
 import com.allure.rap.roze.mapper.UserMapper;
 import com.allure.rap.roze.service.IUserService;
@@ -129,6 +126,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 .eq(User::getIsDelete, 0);
         IPage<User> userPage = userMapper.selectPage(page, queryWrapper);
         return userPage;
+    }
+
+    @Override
+    public Boolean userLogin(UserLoginRequest userLoginRequest){
+        String userID = userLoginRequest.getUserId();
+        if (!StringUtils.hasText(userID)) {
+            ThrowUtils.throwIf(true,ErrorCode.NOT_FOUND_ERROR,"用户为空");
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .eq(User::getUserId, userID);
+        User user = userMapper.selectOne(queryWrapper);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String rawPassword = user.getPassword();
+        String encryptedPassword = encoder.encode(rawPassword);
+        String checkPassword = encoder.encode(userLoginRequest.getPassword());
+        if(!encryptedPassword.equals(checkPassword)) {
+            ThrowUtils.throwIf(true,ErrorCode.PARAMS_ERROR,"密码不正确");
+        }
+        return true;
     }
 
 

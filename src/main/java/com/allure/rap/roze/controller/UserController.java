@@ -4,10 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.allure.rap.roze.common.BaseResponse;
 import com.allure.rap.roze.common.ErrorCode;
 import com.allure.rap.roze.common.ResultUtils;
-import com.allure.rap.roze.model.dto.user.PasswordUpdateRequest;
-import com.allure.rap.roze.model.dto.user.UserCreateRequest;
-import com.allure.rap.roze.model.dto.user.UserDeleteRequest;
-import com.allure.rap.roze.model.dto.user.UserUpdateRequest;
+import com.allure.rap.roze.model.dto.user.*;
 import com.allure.rap.roze.model.entity.User;
 import com.allure.rap.roze.service.IUserService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -22,6 +19,18 @@ public class UserController {
 
     @Resource
     private IUserService userService;
+
+    @PostMapping
+    public BaseResponse<Boolean> userRegister(@RequestBody UserCreateRequest userCreateRequest) {
+
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("/login")
+    public BaseResponse<Boolean> userLogin(@RequestBody UserLoginRequest userLoginRequest) {
+
+        return ResultUtils.success(true);
+    }
 
     @PostMapping("/create")
     public BaseResponse<String> createUser(@RequestBody UserCreateRequest userCreateRequest) {
@@ -71,8 +80,6 @@ public class UserController {
         IPage<User> userList = userService.getUserList(pageNum, pageSize);
         return ResultUtils.success(userList);
     }
-
-
 
 
 }
