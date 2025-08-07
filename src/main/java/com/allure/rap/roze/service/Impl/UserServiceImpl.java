@@ -1,12 +1,11 @@
 package com.allure.rap.roze.service.Impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.crypto.digest.BCrypt;
 import com.allure.rap.roze.common.ErrorCode;
 import com.allure.rap.roze.exception.ThrowUtils;
+import com.allure.rap.roze.mapper.UserMapper;
 import com.allure.rap.roze.model.dto.user.*;
 import com.allure.rap.roze.model.entity.User;
-import com.allure.rap.roze.mapper.UserMapper;
 import com.allure.rap.roze.service.IUserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -18,8 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
@@ -29,24 +26,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private UserMapper userMapper;
 
     @Override
-    public String createuser(UserCreateRequest userCreateRequest) {
+    public String registerUser(UserRegisterRequest userRegisterRequest) {
 
-        ThrowUtils.throwIf(userCreateRequest.getUserId() == null,
+        ThrowUtils.throwIf(userRegisterRequest.getUserId() == null,
                 ErrorCode.PARAMS_ERROR, "用户ID不能为空");
-        ThrowUtils.throwIf(userCreateRequest.getPassword() == null,
+        ThrowUtils.throwIf(userRegisterRequest.getPassword() == null,
                 ErrorCode.PARAMS_ERROR, "密码不能为空");
-        ThrowUtils.throwIf(!userCreateRequest.getPassword().equals(userCreateRequest.getCheckPassword()),
+        ThrowUtils.throwIf(!userRegisterRequest.getPassword().equals(userRegisterRequest.getCheckPassword()),
                 ErrorCode.PARAMS_ERROR, "两次密码不一致");
 
         // 密码加密
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String rawPassword = userCreateRequest.getPassword();
+        String rawPassword = userRegisterRequest.getPassword();
         String encryptedPassword = encoder.encode(rawPassword);
 
-        userCreateRequest.setPassword(encryptedPassword); // 覆盖原明文密码
+        userRegisterRequest.setPassword(encryptedPassword); // 覆盖原明文密码
 
         User newUser = new User();
-        BeanUtil.copyProperties(userCreateRequest, newUser);
+        BeanUtil.copyProperties(userRegisterRequest, newUser);
         newUser.setCreateTime(LocalDateTime.now());
         newUser.setCreateUser(ADMIN);
         newUser.setUpdateTime(LocalDateTime.now());
@@ -129,10 +126,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
-    public Boolean userLogin(UserLoginRequest userLoginRequest){
+    public Boolean userLogin(UserLoginRequest userLoginRequest) {
         String userID = userLoginRequest.getUserId();
         if (!StringUtils.hasText(userID)) {
-            ThrowUtils.throwIf(true,ErrorCode.NOT_FOUND_ERROR,"用户为空");
+            ThrowUtils.throwIf(true, ErrorCode.NOT_FOUND_ERROR, "用户为空");
         }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
@@ -142,12 +139,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String rawPassword = user.getPassword();
         String encryptedPassword = encoder.encode(rawPassword);
         String checkPassword = encoder.encode(userLoginRequest.getPassword());
-        if(!encryptedPassword.equals(checkPassword)) {
-            ThrowUtils.throwIf(true,ErrorCode.PARAMS_ERROR,"密码不正确");
+        if (!encryptedPassword.equals(checkPassword)) {
+            ThrowUtils.throwIf(true, ErrorCode.PARAMS_ERROR, "密码不正确");
         }
         return true;
     }
 
+    private void getLogin(String userId){
+        return;
+    }
 
 
 }

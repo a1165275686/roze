@@ -6,7 +6,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface IUserService extends IService<User> {
-    String createuser(UserCreateRequest userCreateRequest);
+
+    String registerUser(UserRegisterRequest userRegisterRequest);
 
     Boolean deleteUser(UserDeleteRequest userDeleteRequest);
 
