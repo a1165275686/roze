@@ -20,27 +20,25 @@ public class UserController {
     @Resource
     private IUserService userService;
 
-    @PostMapping
-    public BaseResponse<Boolean> userRegister(@RequestBody UserCreateRequest userCreateRequest) {
+    @PostMapping("/register")
+    public BaseResponse<String> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
 
-        return ResultUtils.success(true);
+        if (BeanUtil.isEmpty(userRegisterRequest)) {
+            return ResultUtils.error(ErrorCode.NOT_FOUND_ERROR);
+        }
+        String userId = userService.registerUser(userRegisterRequest);
+        return ResultUtils.success(userId);
     }
 
     @PostMapping("/login")
     public BaseResponse<Boolean> userLogin(@RequestBody UserLoginRequest userLoginRequest) {
-
-        return ResultUtils.success(true);
-    }
-
-    @PostMapping("/create")
-    public BaseResponse<String> createUser(@RequestBody UserCreateRequest userCreateRequest) {
-        if (BeanUtil.isEmpty(userCreateRequest)) {
+        if (BeanUtil.isEmpty(userLoginRequest)) {
             return ResultUtils.error(ErrorCode.NOT_FOUND_ERROR);
         }
-
-        String userId = userService.createuser(userCreateRequest);
-        return ResultUtils.success(userId);
+        Boolean b = userService.userLogin(userLoginRequest);
+        return ResultUtils.success(b);
     }
+
 
     @PostMapping("/update")
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
